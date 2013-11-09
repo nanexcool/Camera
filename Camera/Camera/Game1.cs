@@ -18,6 +18,13 @@ namespace Camera
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont font;
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        Player player;
+        Map map;
+        Camera camera;
 
         public Game1()
         {
@@ -33,7 +40,18 @@ namespace Camera
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            map = new Map(10, 10, Content.Load<Texture2D>("bg"));
+
+            player = new Player()
+            {
+                Texture = Content.Load<Texture2D>("Octocat"),
+                Position = new Vector2(GraphicsDevice.Viewport.Width/ 2, GraphicsDevice.Viewport.Height / 2)
+            };
+
+            camera = new Camera(this);
+            camera.Focus = player;
+
+            font = Content.Load<SpriteFont>("Font");
 
             base.Initialize();
         }
@@ -66,11 +84,62 @@ namespace Camera
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
+            KeyboardState state = Keyboard.GetState();
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            Vector2 p = Vector2.Zero;
+
+            if (state.IsKeyDown(Keys.A))
+            {
+                p.X = -1;
+            }
+            if (state.IsKeyDown(Keys.E))
+            {
+                p.X = 1;
+            }
+            if (state.IsKeyDown(Keys.OemComma))
+            {
+                p.Y = -1;
+            }
+            if (state.IsKeyDown(Keys.O))
+            {
+                p.Y = 1;
+            }
+            
+            player.Position += p * 100 * elapsed;
+            player.Position = Vector2.Clamp(player.Position, Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width - player.Width, GraphicsDevice.Viewport.Height - player.Height));
+
+            p = Vector2.Zero;
+
+            if (state.IsKeyDown(Keys.Left))
+            {
+                p.X = -1;
+            }
+            if (state.IsKeyDown(Keys.Right))
+            {
+                p.X = 1;
+            }
+            if (state.IsKeyDown(Keys.Up))
+            {
+                p.Y = -1;
+            }
+            if (state.IsKeyDown(Keys.Down))
+            {
+                p.Y = 1;
+            }
+
+            map.Position += p * 100 * elapsed;
+
+            camera.Update(elapsed);
+
+            sb.Clear();
+            sb.AppendLine(camera.Position.ToString());
+            sb.AppendLine(map.Position.ToString());
+            sb.AppendLine(player.Position.ToString());
 
             base.Update(gameTime);
         }
@@ -83,9 +152,31 @@ namespace Camera
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            GraphicsDevice.Viewport = new Viewport(100, 100, 600, 380);
+            
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, camera.Transform);
+            //spriteBatch.Begin();
+            
+            map.Draw(spriteBatch);
+
+            player.Draw(spriteBatch);
+
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+
+            DrawText(spriteBatch, sb);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void DrawText(SpriteBatch spriteBatch, System.Text.StringBuilder sb)
+        {
+            spriteBatch.DrawString(font, sb, Vector2.One, Color.Black);
+            spriteBatch.DrawString(font, sb, Vector2.Zero, Color.White);
         }
     }
 }
