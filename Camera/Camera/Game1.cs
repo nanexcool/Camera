@@ -20,6 +20,9 @@ namespace Camera
         SpriteBatch spriteBatch;
         SpriteFont font;
 
+        Viewport defaultViewport;
+        Viewport gameplayViewport;
+
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
         Player player;
@@ -40,12 +43,17 @@ namespace Camera
         /// </summary>
         protected override void Initialize()
         {
+            defaultViewport = GraphicsDevice.Viewport;
+
+            gameplayViewport = new Viewport(100, 100, defaultViewport.Width - 200, defaultViewport.Height - 100);
+            
             map = new Map(10, 10, Content.Load<Texture2D>("bg"));
+            map.Position = new Vector2(10, 10);
 
             player = new Player()
             {
                 Texture = Content.Load<Texture2D>("Octocat"),
-                Position = new Vector2(GraphicsDevice.Viewport.Width/ 2, GraphicsDevice.Viewport.Height / 2)
+                Position = new Vector2(gameplayViewport.Width / 2, gameplayViewport.Height / 2)
             };
 
             camera = new Camera(this);
@@ -111,28 +119,44 @@ namespace Camera
             }
             
             player.Position += p * 100 * elapsed;
-            player.Position = Vector2.Clamp(player.Position, Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width - player.Width, GraphicsDevice.Viewport.Height - player.Height));
+            player.Position = Vector2.Clamp(player.Position, Vector2.Zero, new Vector2(gameplayViewport.Width - player.Width, gameplayViewport.Height - player.Height));
 
             p = Vector2.Zero;
 
             if (state.IsKeyDown(Keys.Left))
             {
                 p.X = -1;
+                gameplayViewport.X -= 1;
             }
             if (state.IsKeyDown(Keys.Right))
             {
                 p.X = 1;
+                gameplayViewport.X += 1;
             }
             if (state.IsKeyDown(Keys.Up))
             {
                 p.Y = -1;
+                gameplayViewport.Y -= 1;
             }
             if (state.IsKeyDown(Keys.Down))
             {
                 p.Y = 1;
+                gameplayViewport.Y += 1;
             }
 
-            map.Position += p * 100 * elapsed;
+            if (gameplayViewport.X < 0)
+            {
+                gameplayViewport.X = 0;
+            }
+            if (gameplayViewport.Y < 0)
+            {
+                gameplayViewport.Y = 0;
+            }
+            
+            //gameplayViewport.X += (int)(p.X * elapsed);
+            //gameplayViewport.Y += (int)(p.Y * elapsed);
+
+            //map.Position += p * 100 * elapsed;
 
             camera.Update(elapsed);
 
@@ -152,17 +176,23 @@ namespace Camera
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            GraphicsDevice.Viewport = new Viewport(100, 100, 600, 380);
-            
+            GraphicsDevice.Viewport = gameplayViewport;
+
+            spriteBatch.Begin();
+            spriteBatch.Draw(map.Texture, new Rectangle(0, 0, gameplayViewport.Width, gameplayViewport.Height), Color.Black);
+            spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, camera.Transform);
             //spriteBatch.Begin();
+            
             
             map.Draw(spriteBatch);
 
             player.Draw(spriteBatch);
 
             spriteBatch.End();
+
+            GraphicsDevice.Viewport = new Viewport(0, 0, 800, 480);
 
             spriteBatch.Begin();
 
