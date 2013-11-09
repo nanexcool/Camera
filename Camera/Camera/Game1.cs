@@ -24,6 +24,7 @@ namespace Camera
         Viewport gameplayViewport;
 
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        Random random = new Random();
 
         Player player;
         Map map;
@@ -33,6 +34,9 @@ namespace Camera
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
         }
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace Camera
 
             gameplayViewport = new Viewport(100, 100, defaultViewport.Width - 200, defaultViewport.Height - 100);
             
-            map = new Map(10, 10, Content.Load<Texture2D>("bg"));
+            map = new Map(20, 18, Content.Load<Texture2D>("bg"));
             map.Position = new Vector2(10, 10);
 
             player = new Player()
@@ -119,7 +123,7 @@ namespace Camera
             }
             
             player.Position += p * 100 * elapsed;
-            player.Position = Vector2.Clamp(player.Position, Vector2.Zero, new Vector2(gameplayViewport.Width - player.Width, gameplayViewport.Height - player.Height));
+            player.Position = Vector2.Clamp(player.Position, new Vector2(map.X, map.Y), new Vector2(map.Bounds.Width - player.Width, map.Bounds.Height - player.Height));
 
             p = Vector2.Zero;
 
@@ -144,24 +148,20 @@ namespace Camera
                 gameplayViewport.Y += 1;
             }
 
-            if (gameplayViewport.X < 0)
+            if (random.NextDouble() < 0.005)
             {
-                gameplayViewport.X = 0;
-            }
-            if (gameplayViewport.Y < 0)
-            {
-                gameplayViewport.Y = 0;
+                gameplayViewport.X = random.Next(0, 100);
+                gameplayViewport.Y = random.Next(0, 100);
             }
             
-            //gameplayViewport.X += (int)(p.X * elapsed);
-            //gameplayViewport.Y += (int)(p.Y * elapsed);
-
-            //map.Position += p * 100 * elapsed;
+            // Clamp gameplayViewport to Window
+            gameplayViewport.X = (int)MathHelper.Clamp(gameplayViewport.X, 0, defaultViewport.Width - gameplayViewport.Width);
+            gameplayViewport.Y = (int)MathHelper.Clamp(gameplayViewport.Y, 0, defaultViewport.Height - gameplayViewport.Height);
 
             camera.Update(elapsed);
 
             sb.Clear();
-            sb.AppendLine(camera.Position.ToString());
+            sb.AppendLine(gameplayViewport.Bounds.ToString());
             sb.AppendLine(map.Position.ToString());
             sb.AppendLine(player.Position.ToString());
 
@@ -192,7 +192,7 @@ namespace Camera
 
             spriteBatch.End();
 
-            GraphicsDevice.Viewport = new Viewport(0, 0, 800, 480);
+            GraphicsDevice.Viewport = defaultViewport;
 
             spriteBatch.Begin();
 

@@ -31,6 +31,8 @@ namespace Camera
             Texture = texture;
 
             TileSize = 32;
+
+            Bounds = new Rectangle(X, Y, Width * TileSize, Height * TileSize);
         }
 
         public void Draw(SpriteBatch spriteBatch)

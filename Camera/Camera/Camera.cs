@@ -55,10 +55,10 @@ namespace Camera
 
             Origin = Center / scale;
 
-            //position.X += (Focus.Position.X - position.X) * 1.25f * elapsed;
-            //position.Y += (Focus.Position.Y - position.Y) * 1.25f * elapsed;
-            position.X = Focus.Position.X;
-            position.Y = Focus.Position.Y;
+            position.X += (Focus.Position.X - position.X) * 1.25f * elapsed;
+            position.Y += (Focus.Position.Y - position.Y) * 1.25f * elapsed;
+            //position.X = Focus.Position.X;
+            //position.Y = Focus.Position.Y;
         }
 
     }
