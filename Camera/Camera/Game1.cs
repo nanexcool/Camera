@@ -37,6 +37,8 @@ namespace Camera
 
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
+
+            graphics.IsFullScreen = false;
         }
 
         /// <summary>
@@ -47,9 +49,19 @@ namespace Camera
         /// </summary>
         protected override void Initialize()
         {
-            defaultViewport = GraphicsDevice.Viewport;
+            //defaultViewport = GraphicsDevice.Viewport;
+            defaultViewport.X = 0;
+            defaultViewport.Y = 0;
+            defaultViewport.Width = 1280;
+            defaultViewport.Height = 720;
 
-            gameplayViewport = new Viewport(100, 100, defaultViewport.Width - 200, defaultViewport.Height - 100);
+            //defaultViewport = new Viewport(0, 0, 1280, 720);
+
+            //gameplayViewport = new Viewport(100, 100, defaultViewport.Width - 200, defaultViewport.Height - 100);
+            gameplayViewport.X = 100;
+            gameplayViewport.Y = 100;
+            gameplayViewport.Width = defaultViewport.Width - 200;
+            gameplayViewport.Height = defaultViewport.Height - 100;
             
             map = new Map(20, 18, Content.Load<Texture2D>("bg"));
             map.Position = new Vector2(10, 10);
@@ -105,6 +117,17 @@ namespace Camera
 
             Vector2 p = Vector2.Zero;
 
+            if (state.IsKeyDown(Keys.OemPlus) || state.IsKeyDown(Keys.Add))
+            {
+                gameplayViewport.Width += 1;
+                gameplayViewport.Height += 1;
+            }
+            if (state.IsKeyDown(Keys.OemMinus) || state.IsKeyDown(Keys.Subtract))
+            {
+                gameplayViewport.Width -= 1;
+                gameplayViewport.Height -= 1;
+            }
+
             if (state.IsKeyDown(Keys.A))
             {
                 p.X = -1;
@@ -150,8 +173,8 @@ namespace Camera
 
             if (random.NextDouble() < 0.005)
             {
-                gameplayViewport.X = random.Next(0, 100);
-                gameplayViewport.Y = random.Next(0, 100);
+                //gameplayViewport.X = random.Next(0, 100);
+                //gameplayViewport.Y = random.Next(0, 100);
             }
             
             // Clamp gameplayViewport to Window
@@ -161,9 +184,10 @@ namespace Camera
             camera.Update(elapsed);
 
             sb.Clear();
-            sb.AppendLine(gameplayViewport.Bounds.ToString());
-            sb.AppendLine(map.Position.ToString());
-            sb.AppendLine(player.Position.ToString());
+            sb.AppendLine("Viewport: " + gameplayViewport.Bounds.ToString());
+            sb.AppendLine("Map: " + map.Position.ToString());
+            sb.AppendLine("Player: " + player.Position.ToString());
+            sb.AppendLine("FPS: " + (1 / elapsed));
 
             base.Update(gameTime);
         }

@@ -37,9 +37,12 @@ namespace Camera
 
         public Camera(Game game)
         {
-            Width = game.GraphicsDevice.Viewport.Width - 200;
-            Height = game.GraphicsDevice.Viewport.Height - 100;
-            Bounds = game.GraphicsDevice.Viewport.Bounds;
+            //Width = game.GraphicsDevice.Viewport.Width - 200;
+            //Height = game.GraphicsDevice.Viewport.Height - 100;
+            //Bounds = game.GraphicsDevice.Viewport.Bounds;
+            Width = 1280 - 200;
+            Height = 720 - 100;
+            Bounds = new Rectangle(0, 0, Width, Height);
             Center = new Vector2(Width / 2, Height / 2);
             scale = 1;
             Rotation = 0;
